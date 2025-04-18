@@ -1,3 +1,10 @@
 {
-  "extends": ["@arthurrios/biome-config/next"]
+  "extends": ["@arthurrios/biome-config/next"],
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConfusingVoidType": "off"
+      }
+    }
+  }
 }

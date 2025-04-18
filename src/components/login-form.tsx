@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,11 +12,36 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
+import { useActionState } from 'react'
+import { Loader2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+
+interface ILoginFormProps {
+  loginAction: (formData: FormData) => Promise<void | { error: string }>
+}
+
+type ActionState = null | void | {
+  error?: string
+}
 
 export function LoginForm({
+  loginAction,
   className,
   ...props
-}: React.ComponentProps<'div'>) {
+}: ILoginFormProps & React.ComponentProps<'div'>) {
+  const [, dispatchAction, isPending] = useActionState(
+    async (state: ActionState, formData: FormData) => {
+      const response = await loginAction(formData)
+
+      if (response?.error) {
+        toast.error(response.error)
+      }
+
+      return null
+    },
+    null,
+  )
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -25,12 +52,13 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form action={dispatchAction} noValidate>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -46,13 +74,19 @@ export function LoginForm({
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" name="password" type="password" required />
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending && <Loader2Icon className="animate-spin" />}
                   Login
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  type="button"
+                  disabled={isPending}
+                >
                   Login with Google
                 </Button>
               </div>
