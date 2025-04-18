@@ -4,7 +4,7 @@ import { db } from './db'
 import { compare } from 'bcryptjs'
 import { loginSchema } from '@/schemas/loginSchema'
 
-export const { signIn, signOut, auth } = NextAuth({
+export const { signIn, signOut, auth, handlers } = NextAuth({
   session: {
     strategy: 'jwt',
   },
